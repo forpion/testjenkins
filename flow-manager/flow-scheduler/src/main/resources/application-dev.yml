@@ -1,0 +1,76 @@
+#**************************logging config***********************************************
+logging:
+  config:
+  exception-conversion-word:
+  file: /usr/local/scheduler-log/api.log
+  register-shutdown-hook: true
+  level:
+    root: INFO
+    org.apache: WARN
+    org.springframework: INFO
+    org.springframework.boot.context.embedded.tomcat: INFO
+    com.ericsson: debug
+  pattern:
+      file: '[%d{yyyy-MM-dd HH:mm:ss.SSS}]  [%thread] %-5level %logger{50} - %msg%n'
+      console: '[%d{yyyy-MM-dd HH:mm:ss}] [%-5p] [%-8t]  [%c] L:%-3L - %m%n'
+      level: INFO
+
+
+server:
+  port: 9097
+  tomcat:
+    max-threads: 20
+
+multipart:
+     maxFileSize: 10Mb
+     maxRequestSize: 100Mb
+
+management:
+    security:
+        enabled: false
+
+spring:
+     http:
+           multipart:
+               maxFileSize: 100Mb
+               maxRequestSize: 100Mb
+     metrics:
+        servo:
+           enabled: false
+feign:
+  hystrix:
+    enabled: true
+    
+service:
+   flow-controller:
+       host: ${FLOWCONTROLLER_SERVICE_HOST}
+       port: ${FLOWCONTROLLER_SERVICE_PORT}
+   flow-node-managr:
+       host: ${FLOWMANAGER_SERVICE_HOST}
+       port: ${FLOWMANAGER_SERVICE_PORT}
+hystrix:
+    command:
+        "FlowControlFeign#startFlow(FlowControlParm)":
+            execution:
+                isolation:
+                    thread:
+                        timeoutInMilliseconds: 60000
+                    strategy: THREAD
+            circuitBreaker:
+                 sleepWindowInMilliseconds: 50000
+                 errorThresholdPercentage: 50
+                 requestVolumeThreshold: 4
+        "NodeManagerFeign#getFlowInfoById(Integer)":
+            execution:
+                isolation:
+                    thread:
+                        timeoutInMilliseconds: 60000
+                    strategy: THREAD
+            circuitBreaker:
+                 sleepWindowInMilliseconds: 50000
+                 errorThresholdPercentage: 50
+                 requestVolumeThreshold: 4
+
+
+
+     
